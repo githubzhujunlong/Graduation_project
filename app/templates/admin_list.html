@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div style="" class="clearfix">
+            <a href="/admin/register/" class="btn btn-success" style="position: relative;top: 33px;">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                新建管理员
+            </a>
+            <form action="" method="get">
+                <div class="input-group" style="width: 300px;float: right">
+                    <input type="text" class="form-control" placeholder="请输入姓名" name="q"
+                           value="{{ search_data }}">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                管理员列表
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>用户名</th>
+                    <th>密码</th>
+                    <th>手机号</th>
+                    <th>类型</th>
+                    <th>创建时间</th>
+                    <th>更新时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in page_queryset %}
+                    <tr>
+                        <th>{{ obj.id }}</th>
+                        <th>{{ obj.name }}</th>
+                        <td>{{ obj.username }}</td>
+                        <td>{{ obj.password }}</td>
+                        <td>{{ obj.mobile }}</td>
+                        <td>{{ obj.get_type_display }}</td>
+                        <td>{{ obj.creat_time }}</td>
+                        <td>{{ obj.update_time }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination">
+            {{ page_string }}
+        </ul>
+    </div>
+{% endblock %}

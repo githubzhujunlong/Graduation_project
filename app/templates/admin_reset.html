@@ -1,0 +1,60 @@
+{% extends 'layout.html' %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 600px;padding-bottom: 100px">
+        <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;margin-top: 100px">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ title }}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="" novalidate class="formReset">
+                    {% for field in form %}
+                        <div>
+                            <label>{{ field.label }}</label>
+                            {{ field }}
+                            <span style="color: red" class="error-msg">{{ field.errors.0 }}</span>
+
+                        </div>
+                    {% endfor %}
+                    <button type="button" class="btn btn-primary btn-save">提交</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            bindBtnSaveEvent();
+        })
+
+        function bindBtnSaveEvent() {
+            $('.btn-save').click(function () {
+                $('.error-msg').empty();
+                $.ajax({
+                    url: '/admin/reset/',
+                    type: 'post',
+                    data: $('.formReset').serialize(),
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            $('.formReset')[0].reset();
+                            layer.msg(res.error, {icon: 6});
+
+                        } else {
+                            $.each(res.error, function (name, errorList) {
+                                $('#id_' + name).next().text(errorList[0]);
+                            })
+                        }
+                    }
+                })
+            })
+        }
+
+    </script>
+{% endblock %}

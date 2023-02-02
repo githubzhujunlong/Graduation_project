@@ -1,0 +1,287 @@
+{% extends 'layout.html' %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 600px;">
+        {% if admin_obj.avatar %}
+            <div class="container" style="margin-bottom: 70px;position: relative;left: 0;width: 250px;
+                                   ">
+                <img src="/media/{{ admin_obj.avatar }}" class="" style="width: 200px;height: 200px;border-radius: 100%;">
+                <button type="button" id="btnAvatar" class="layui-btn"
+                        style="position: relative;right: -50px;top: 30px;">更换头像
+                </button>
+            </div>
+        {% else %}
+            <div class="container" style="margin-bottom: 70px;position: relative;left: 150px;">
+                <img src="//t.cn/RCzsdCq" class="" style="width: 200px;height: 200px;border-radius: 100%;">
+                <button type="button" id="btnAvatar" class="layui-btn"
+                        style="position: relative;right: 150px;top: 130px;">更换头像
+                </button>
+            </div>
+        {% endif %}
+
+        <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;">
+            <div class="panel-heading">姓名</div>
+            <div class="panel-body">
+                {{ admin_obj.name }}
+            </div>
+        </div>
+        <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;">
+            <div class="panel-heading">用户名</div>
+            <div class="panel-body">
+                {{ admin_obj.username }}
+            </div>
+        </div>
+        <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;">
+            <div class="panel-heading">手机</div>
+            <div class="panel-body">
+                {{ admin_obj.mobile }}
+            </div>
+        </div>
+        <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;">
+            <div class="panel-heading">创建时间</div>
+            <div class="panel-body">
+                {{ admin_obj.creat_time }}
+            </div>
+        </div>
+        <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;">
+            <div class="panel-heading">更新时间</div>
+            <div class="panel-body">
+                {{ admin_obj.update_time }}
+            </div>
+        </div>
+        <button type="button" class="layui-btn  layui-btn-primary btn-edit"
+                style="margin-left: 160px">编辑资料
+        </button>
+        <button type="button" class="layui-btn  layui-btn-danger btn-delete"
+                style="">注销此账户
+        </button>
+    </div>
+
+    <!-- 更改头像对话框 -->
+    <div class="modal fade" id="avatarModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="avatarModalLabel">Modal title</h4>
+                </div>
+                <form id="form0" action="/admin/edit/avatar/" method="post" enctype="multipart/form-data"
+                      style="text-align: center;">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {% for field in form2 %}
+                            <img src="" id="img0" style="height: 250px">
+                            <div class="form-group" style="position: relative;left: 220px;">
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                        <button id="btnAvatarSave" type="submit" class="btn btn-primary">保 存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 编辑对话框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formAdd">
+                        <div class="clearfix">
+                            {% for field in form %}
+                                <div class="col-xs-6">
+                                    <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}
+                                        <span class="error-msg" style="color: red;position: absolute;"></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                    <button id="btnSave" type="button" class="btn btn-primary">保 存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 删除对话框 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定删除</h4>
+                <p style="margin: 10px 0"> 删除后，所有关联的相关数据都会被删除。 </p>
+                <p style="text-align: right">
+                    <button id="btnConfirmDelete" type="button" class="btn btn-danger">确 定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $('#id_avatar').change(function () {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (e) {
+                $('#img0').attr('src', this.result);
+                $('#img0').attr('style', 'width:400px;height: 250px;');
+            }
+        })
+        $(function () {
+            bindBtnSaveEvent();
+            bindBtnEditEvent();
+            bindBtnDeleteEvent();
+            bindBtnConfirmDeleteEvent();
+            bindBtnEditAvatarEvent();
+            bindBtnAvatarSaveEvent();
+        })
+
+        function bindBtnAvatarSaveEvent() {
+            $('#btnAvatarSave').click(function () {
+                var files = $('input[type=file]').get(0).files[0];
+                var formData = new FormData();
+                formData.append('avatar', files);
+                $.ajax({
+                    url: '/admin/edit/avatar/',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'JSON',
+                    success: function (res) {
+                        console.log(res)
+                        if (res.status) {
+                            $('#avatarModal').modal('hide');
+                            location.reload();
+                            layer.msg('上传成功', {icon: 6});
+                        } else {
+                            layer.msg(res.error, {icon: 5});
+                        }
+                    },
+                    error: function () {
+                        layer.msg('请先上传图片', {icon: 5});
+                    }
+                })
+            })
+        }
+
+        function bindBtnEditAvatarEvent() {
+            $('#btnAvatar').click(function () {
+                $('#id_avatar').val('');
+                $('#img0').attr('style', 'width:0;height: 0;');
+                $('#avatarModal').modal('show');
+
+                // 修改对话框标题
+                $('#avatarModalLabel').text('更改头像');
+
+            })
+        }
+
+        function bindBtnDeleteEvent() {
+            $('.btn-delete').click(function () {
+                // alert('111')
+                $('#deleteModal').modal('show')
+            })
+        }
+
+        function bindBtnConfirmDeleteEvent() {
+            $('#btnConfirmDelete').click(function () {
+                $.ajax({
+                    url: '/admin/delete/',
+                    type: 'get',
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            // $("tr[uid='"+DELETE_ID+"']").remove()
+                            // $('#deleteModal').modal('hide');
+                            location.href = '/admin/login/';
+                        } else {
+                            alert('请求失败');
+                        }
+                    }
+                })
+            })
+        }
+
+
+        function bindBtnSaveEvent() {
+            $('#btnSave').click(function () {
+                $('.error-msg').empty();
+                doEdit();
+            })
+        }
+
+
+        function doEdit() {
+            $.ajax({
+                url: '/admin/edit/',
+                type: 'post',
+                data: $('#formAdd').serialize(),
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        alert('保存成功');
+                        // 清空表单 $('#formAdd')jQuery对象 -> $('#formAdd')[0]DOM对象
+                        $('#formAdd')[0].reset();
+                        // 隐藏对话框
+                        $('#myModal').modal('hide');
+                        // 刷新页面
+                        location.reload();
+                    } else {
+                        $.each(res.error, function (name, errorList) {
+                            $('#id_' + name).next().text(errorList[0]);
+                        })
+                    }
+                }
+            })
+        }
+
+
+        function bindBtnEditEvent() {
+            $('.btn-edit').click(function () {
+                $.ajax({
+                    url: '/admin/detail/',
+                    type: 'get',
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            // 将数据赋值到对话框中的标签中
+                            $.each(res.data, function (name, value) {
+                                $('#id_' + name).val(value);
+                            })
+
+                            // 显示对话框
+                            $('#myModal').modal('show');
+
+                            // 修改对话框标题
+                            $('#myModalLabel').text('编辑资料');
+                        } else {
+                            alert('请求失败');
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+{% endblock %}

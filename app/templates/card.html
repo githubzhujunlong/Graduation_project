@@ -1,0 +1,247 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="container" style="width: 800px;margin-top: 20px;height: 350px">
+        <div class="row">
+            <div class="col-md-6">
+                <form id="form0" enctype="multipart/form-data">
+                    <img src="" id="img0" style="height: 250px">
+                    <input type="file" name="file0" id="file0"
+                           style="position: relative;left: 120px;">
+                    <span id="card_num" style="position:relative;left: 120px;
+                                               font-size: 25px;width: 200px;
+                                               height: 40px;"></span>
+                </form>
+            </div>
+            <div class="col-md-offset-2 col-md-4">
+                <div class="row" style="margin: 20px 0;">
+                    <button type="button" class="layui-btn" id="submit" style="position: relative;left: 90px">
+                        <i class="layui-icon">&#xe609;</i> 提交
+                    </button>
+                </div>
+                <div class="row" style="margin: 20px 0;">
+                    <button type="button" class="layui-btn" id="identify" style="position: relative;left: 90px">
+                        <i class="layui-icon">&#xe660;</i> 识别
+                    </button>
+                </div>
+                <div class="row" style="margin: 20px 0;">
+                    <button type="button" class="layui-btn" id="identify_show" style="position: relative;left: 90px">
+                        <i class="layui-icon">&#xe660;</i> 处理过程
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# 二维码账单框 #}
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="imageModalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <img src="{% static 'img/QQ图片20220503151600.png' %}" style="width: 100%;height: 100%;">
+                    <div class="container" id="price" style="font-size: 20px;text-align: center;width: 500px;">
+                        您的车辆所停区域<span id="car_area" style="color: red;font-weight: bolder;font-size:24px;"></span>
+                        的收费标准为：<span id="park_price"  style="color: red;font-weight: bolder;font-size:24px;"></span>元/小时
+                        <br/>
+                        8:00-20:00正常价格，20:00-次日8:00半价,两个时间段内的停车时间独立计算，不满1小时按1小时算<br/>
+                        累计金额：<span id="money"></span>元
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"
+                            onclick="location.reload();">取 消</button>
+                    <button id="btnSure" type="button" class="btn btn-primary">确 定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            layer.config({
+                offset: '50px'
+            })
+        });
+
+        $('#file0').change(function () {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (e) {
+                $('#img0').attr('src', this.result);
+                $('#img0').attr('style', 'width:400px;height: 250px;');
+            }
+        })
+
+        $(function () {
+            bindBtnIdentifyEvent();
+            bindBtnIdentifyShowEvent();
+            // bindBtnSubmitEvent();
+            bindBtnSubmitEvent2();
+        })
+
+
+        function bindBtnIdentifyEvent() {
+            $('#identify').click(function () {
+                var files = $('#file0').get(0).files[0];
+                var formData = new FormData();
+                // console.log(files)
+                formData.append('card_image', files);
+                $.ajax({
+                    url: '/card/identify/',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        layer.msg('识别成功', {icon: 6});
+                        $('#card_num').text(res);
+                    },
+                    error: function () {
+                        layer.msg('请先上传图片', {icon: 5});
+                    }
+                })
+            })
+        }
+
+        function bindBtnIdentifyShowEvent() {
+            $('#identify_show').click(function () {
+                var files = $('#file0').get(0).files[0];
+                var formData = new FormData();
+                // console.log(files)
+                formData.append('card_image', files);
+                $.ajax({
+                    url: '/card/identify/show/',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        layer.msg('识别成功', {icon: 6});
+                        $('#card_num').text(res);
+                    },
+                    error: function () {
+                        layer.msg('请先上传图片', {icon: 5});
+                    }
+                })
+            })
+        }
+
+        function bindBtnSubmitEvent2() {
+            $('#submit').click(function () {
+                var files = $('input[type=file]').get(0).files[0];
+                var formData = new FormData();
+                formData.append('car_image', files);
+                $.ajax({
+                    url: '/get/type/',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.type === 'in') {
+                            $.ajax({
+                                url: '/car/in/',
+                                type: 'post',
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                dataType: 'JSON',
+                                success: function (res) {
+                                    if (res.status) {
+                                        layer.msg('上传成功', {icon: 6});
+                                        // 清空表单 $('#file0')jQuery对象 -> $('#file0')[0]DOM对象
+                                        $('#img0').attr('src', '');
+                                        $('#img0').attr('style', 'width:0;height: 250px;');
+                                    } else {
+                                        layer.msg(res.error, {icon: 5});
+                                    }
+                                },
+                            })
+                            $('#file0').val('');
+                        } else {
+                            $('#imageModal').modal('show');
+                            $('#price #money').text(res.price);
+                            $('#price #car_area').text(res.car_area);
+                            $('#price #park_price').text(res.park_price);
+                            // $('#price').attr('style', 'width:100%;height:50px;');
+                            $('#price #money').attr('style', 'color:red;font-size:30px;font-weight:bolder;');
+
+                            $('#imageModalLabel').text('支付二维码');
+                            $('#btnSure').click(function () {
+                                $.ajax({
+                                    url: '/car/out/',
+                                    type: 'post',
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    dataType: 'JSON',
+                                    success: function (res) {
+                                        if (res.status) {
+                                            layer.msg('支付成功', {icon: 6});
+                                            $('#imageModal').modal('hide');
+                                            // 清空表单 $('#file0')jQuery对象 -> $('#file0')[0]DOM对象
+                                            $('#img0').attr('src', '');
+                                            $('#img0').attr('style', 'width:0;height: 250px;');
+                                        } else {
+                                            layer.msg(res.error, {icon: 5});
+                                        }
+                                    },
+                                })
+                                $('#file0').val('');
+                            })
+                        }
+                    },
+                    error: function () {
+                        layer.msg('请先上传图片', {icon: 5});
+                    }
+                })
+            })
+        }
+
+
+        /** function bindBtnSubmitEvent() {
+            $('#submit').click(function () {
+                var files = $('input[type=file]').get(0).files[0];
+                var formData = new FormData();
+                formData.append('car_image', files);
+                $.ajax({
+                    url: '/card/submit/',
+                    type: 'post',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            layer.msg('上传成功', {icon: 6});
+                            // 清空表单 $('#file0')jQuery对象 -> $('#file0')[0]DOM对象
+                            $('#img0').attr('src', '');
+                            $('#img0').attr('style', 'width:0;height: 250px;');
+                            // location.href = '/order/list/';
+                        } else {
+                            layer.msg(res.error, {icon: 5});
+                        }
+                    },
+                    error: function () {
+                        layer.msg('请先上传图片', {icon: 5});
+                    }
+                })
+                $('#file0').val('');
+            })
+        } */
+
+    </script>
+{% endblock %}

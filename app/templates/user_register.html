@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/layui-v2.6.8/layui/css/layui.css' %}">
+</head>
+<body>
+
+
+<div class="container" style="width: 600px;">
+    <div class="panel panel-default" style="box-shadow: 5px 5px 20px #aaa;margin-top: 100px">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <div class="panel-body">
+            <form method="post" action="/user/register/" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        <span style="color: red">{{ field.errors.0 }}</span>
+
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    layui.use('element', function () {
+        var element = layui.element;
+    });
+</script>
+<script type="text/javascript" src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/bootstrap-3.4.1/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/layui-v2.6.8/layui/layui.js' %}"></script>
+</body>
+</html>

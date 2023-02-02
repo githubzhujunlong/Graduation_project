@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/layui-v2.6.8/layui/css/layui.css' %}">
+
+    {% block css %}
+    {% endblock %}
+
+    <style>
+        .layui-nav-item a {
+            text-decoration: none;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+
+<div>
+    <div>
+        <ul class="layui-nav layui-nav-tree layui-nav-side layui-bg-black" lay-filter="test">
+            <li class="layui-nav-item layui-bg-cyan" style="height: 70px;">
+                <a href="" style="width: 100%;height: 100%;line-height: 70px;margin: 0;padding: 0;font-size: 21px">
+                    <img src="{% static 'img/logo.png' %}" style="width: 50px">
+                    PARKING LOT
+                </a>
+            </li>
+
+            <li class="layui-nav-item"><a href="/finance/show/">首页</a></li>
+
+            {% if request.path == '/park/list/' %}
+                <li class="layui-nav-item" style="background-color: whitesmoke;padding-left: 30px"><a href="/park/list/"
+                                                                                                      style="color:black;font-weight: bolder;">车位管理</a>
+                </li>
+            {% else %}
+                <li class="layui-nav-item"><a href="/park/list/">车位管理</a></li>
+            {% endif %}
+
+            {% if request.path == '/order/list/' %}
+                <li class="layui-nav-item" style="background-color: whitesmoke;padding-left: 30px"><a
+                        href="/order/list/" style="color:black;font-weight: bolder;">订单管理</a></li>
+            {% else %}
+                <li class="layui-nav-item"><a href="/order/list/">订单管理</a></li>
+            {% endif %}
+
+
+            <li class="layui-nav-item layui-nav-itemed">
+                <a href="javascript:;">其他管理</a>
+                <dl class="layui-nav-child">
+                    {% if request.path == '/admin/list/' %}
+                        <dd style="background-color: whitesmoke;padding-left: 30px"><a href="/admin/list/"
+                                                                                       style="color:black;font-weight: bolder;">管理员列表</a>
+                        </dd>
+                    {% else %}
+                        <dd><a href="/admin/list/">管理员列表</a></dd>
+                    {% endif %}
+
+                    {% if request.path == '/record/list/' %}
+                        <dd style="background-color: whitesmoke;padding-left: 30px"><a href="/record/list/"
+                                                                                       style="color:black;font-weight: bolder;">出入记录</a>
+                        </dd>
+                    {% else %}
+                        <dd><a href="/record/list/">出入记录</a></dd>
+                    {% endif %}
+
+                    {% if request.path == '/price/list/' %}
+                        <dd style="background-color: whitesmoke;padding-left: 30px"><a href="/price/list/"
+                                                                                       style="color:black;font-weight: bolder;">价格调整</a>
+                        </dd>
+                    {% else %}
+                        <dd><a href="/price/list/">价格调整</a></dd>
+                    {% endif %}
+
+                </dl>
+            </li>
+            {% if request.path == '/card/' %}
+                <li class="layui-nav-item" style="background-color: whitesmoke;padding-left: 30px"><a
+                        href="/card/" style="color:black;font-weight: bolder;">车牌识别功能页面</a></li>
+            {% else %}
+                <li class="layui-nav-item"><a href="/card/">车牌识别功能页面</a></li>
+            {% endif %}
+        </ul>
+
+        <div>
+            <ul class="layui-nav" style="text-align: right;height: 70px;line-height: 70px;width: 100%;
+                                     position: fixed;top: 0;z-index: 12;">
+                {% if request.path == '/message/list/' %}
+                    <li class="layui-nav-item" id="kong" style="border-bottom: solid 5px #65cc65;">
+                        <a href="/message/list/">控制台</a>
+                    </li>
+                {% else %}
+                    <li class="layui-nav-item" id="kong">
+                        <a href="/message/list/">控制台</a>
+                    </li>
+                {% endif %}
+                {% if request.path == '/admin/info/' %}
+                    <li class="layui-nav-item" style="border-bottom: solid 5px #65cc65;">
+                        <a href="/admin/info/">个人中心<span class="layui-badge-dot"></span></a>
+                    </li>
+                {% else %}
+                    <li class="layui-nav-item" style="">
+                        <a href="/admin/info/">个人中心<span class="layui-badge-dot"></span></a>
+                    </li>
+                {% endif %}
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img src="//t.cn/RCzsdCq" class="layui-nav-img">{{ request.session.info.nickname }}
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/admin/reset/">修改密码</a></dd>
+                        <dd><a href="/admin/logout/">登出</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+
+        <div style="width: 1250px;height: 100%;padding-top: 30px;margin-bottom: 200px;padding-bottom: 40px;
+         position: relative;top: 90px;left: 220px;box-shadow: 5px 5px 20px #aaa;">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript" src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/bootstrap-3.4.1/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'plugins/layui-v2.6.8/layui/layui.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/echarts.js' %}"></script>
+<script>
+    layui.use('element', function () {
+        var element = layui.element;
+    });
+    layui.use('layer', function () {
+        var layer = layui.layer;
+        layer.config({
+            offset: '50px'
+        })
+    });
+
+    $(function () {
+        setInterval('getReadCount()', 500);
+        getReadCount2();
+        getAvatar();
+    })
+
+    function getAvatar() {
+        $.ajax({
+            url: '/admin/getAvatar/',
+            type: 'get',
+            dataType: 'JSON',
+            success: function (res) {
+                if(res.data){
+                    $('img[class=layui-nav-img]').attr('src', '/media/' + res.data);
+                }
+            }
+        })
+    }
+
+    function getReadCount() {
+        $.ajax({
+            url: '/message/read/count/',
+            type: 'get',
+            dataType: 'JSON',
+            success: function (res) {
+                // console.log($('#kong a span').text());
+                if (res.data > 0) {
+                    $('#kong a').append('<span class="layui-badge"></span>');
+                    $('#kong a span').text(res.data);
+                } else {
+                    $('#kong a span').remove();
+                }
+            }
+        })
+    }
+
+    function getReadCount2() {
+        $.ajax({
+            url: '/message/read/count/',
+            type: 'get',
+            dataType: 'JSON',
+            success: function (res) {
+                // console.log($('#kong a span').text());
+                if (res.data > 0) {
+                    layer.msg('您有' + res.data + '未读消息，请前往控制台查看');
+                }
+            }
+        })
+    }
+
+</script>
+
+{% block js %}
+{% endblock %}
+</body>
+</html>

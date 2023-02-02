@@ -1,0 +1,180 @@
+{% extends 'user_show.html' %}
+
+{% block content %}
+    <div class="container" style="">
+        <div class="layui-card" style="width: 300px;position: relative;left: 850px;">
+            <div class="layui-card-header" style="text-align:center;font-weight: bolder">现行价格标准</div>
+            <div class="layui-card-body">
+                <table class="layui-table" lay-size="sm">
+                    <colgroup>
+                        <col width="150">
+                        <col width="200">
+                        <col>
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>区域</th>
+                        <th>价格</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in price_queryset %}
+                        <tr>
+                            <td>{{ obj.area }}</td>
+                            <td>{{ obj.price }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2">20:00——次日8:00半价</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div style="position: relative;bottom: 150px;" class="clearfix">
+            <form action="" method="get" style="">
+                <div class="input-group" style="width: 250px;">
+                    <select class="form-control"
+                            style="width: 200px;"
+                            name="select_status">
+                        <option>根据状态筛选</option>
+                        {% if select_status == '未完成' %}
+                            <option selected>未完成</option>
+                        {% else %}
+                            <option>未完成</option>
+                        {% endif %}
+                        {% if select_status == '已完成' %}
+                            <option selected>已完成</option>
+                        {% else %}
+                            <option>已完成</option>
+                        {% endif %}
+                    </select>
+
+                    <input type="text" placeholder="按订单结束时间筛选" class="layui-input" id="test2" name="end_date"
+                           style="display: block;width: 200px;"
+                           value="{{ end_date }}">
+                    <input type="text" placeholder="按订单开始时间筛选" class="layui-input" id="test1" name="start_date"
+                           style="display: block;width: 200px;"
+                           value="{{ start_date }}">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit"
+                                style="height: 110px;position: relative;right: 10px;">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+
+        </div>
+
+        <div class="panel panel-default"
+             style="position: relative;bottom: 140px;">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                订单列表
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr class="center1">
+                    <th>ID</th>
+                    <th>订单编号</th>
+                    <th>车位编号</th>
+                    <th>车牌号</th>
+                    <th>驶入时间</th>
+                    <th>驶出时间</th>
+                    <th>订单状态</th>
+                    <th>累计金额</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if not page_queryset %}
+                    <tr>
+                        <td colspan="8">暂无信息</td>
+                    </tr>
+                {% endif %}
+                {% for obj in page_queryset %}
+                    <tr class="center2" uid="{{ obj.id }}">
+                        <td>{{ obj.id }}</td>
+                        <td oid="{{ obj.order_id }}">{{ obj.order_id }}</td>
+                        <td>{{ obj.park_id }}</td>
+                        <td>{{ obj.card }}</td>
+                        <td>{{ obj.start_time }}</td>
+                        {% if obj.end_time %}
+                            <td>{{ obj.end_time }}</td>
+                        {% else %}
+                            <td>——————</td>
+                        {% endif %}
+                        <td status="{{ obj.status }}">
+                            {% if obj.status == 1 %}
+                                <span style="background-color: green;font-size: 16px;padding: 8px;
+                                         border-radius: 3px;color: whitesmoke">{{ obj.get_status_display }}</span>
+                            {% else %}
+                                <span style="background-color: #b20404;font-size: 16px;padding: 8px;
+                                         border-radius: 3px;color: whitesmoke">{{ obj.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ obj.price }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination">
+            {{ page_string }}
+        </ul>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#test1' //指定元素
+            });
+        });
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#test2' //指定元素
+            });
+        });
+
+        $(function () {
+            lineCenter();
+            setInterval('getPrice()', 5000);
+        })
+
+
+        function getPrice() {
+            $.ajax({
+                url: '/card/modifyprice/',
+                type: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        $.each(res.data, function (oid, price) {
+                            price1 = parseFloat(price.price);
+                            price1.toFixed(1);
+                            $('td[oid="' + price.oid + '"]').next().next().next().next().next().next().text(price1);
+                        })
+                    }
+                }
+            })
+        }
+
+        function lineCenter() {
+            $('.center2 td').attr('style', 'line-height: 80px;height: 80px;text-align:center;');
+            $('.center1 th').attr('style', 'text-align:center;');
+        }
+
+    </script>
+{% endblock %}

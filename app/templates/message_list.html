@@ -1,0 +1,93 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <a class="btn btn-default" href="/admin/all/read/"
+            style="position:relative;top: 90px;left: 460px;box-shadow: 5px 5px 20px #aaa;">全部已读
+    </a>
+    <div style="position: relative;right: 350px;top: 55px;">
+        <form action="" method="get">
+            <div class="input-group" style="width: 300px;float: right;">
+                <select class="form-control" style=""
+                        name="select_status">
+                    <option>根据状态筛选</option>
+                    {% if select_status == '未读' %}
+                        <option selected>未读</option>
+                    {% else %}
+                        <option>未读</option>
+                    {% endif %}
+                    {% if select_status == '已读' %}
+                        <option selected>已读</option>
+                    {% else %}
+                        <option>已读</option>
+                    {% endif %}
+                </select>
+                <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit" style="">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                </span>
+            </div>
+        </form>
+    </div>
+    <div class="container"
+         style="box-shadow: 5px 5px 20px #aaa;width: 600px;padding: 0;margin-top: 100px;">
+
+        <div class="layui-collapse" style="margin: 0;">
+            {% for obj in page_queryset %}
+                <div class="layui-colla-item">
+                    {% if obj.status == 2 %}
+                        <h2 oid="{{ obj.id }}" class="layui-colla-title">新的订单({{ obj.order_id }})生成了
+                            {% if obj.is_read == 2 %}
+                                <span class="layui-badge-dot"></span>
+                            {% endif %}
+                        </h2>
+                        <div class="layui-colla-content">
+                            订单号：{{ obj.order_id }}<br/>
+                            车牌号：{{ obj.card }}<br/>
+                            订单开始时间：{{ obj.start_time }}
+                        </div>
+                    {% else %}
+                        <h2 oid="{{ obj.id }}" class="layui-colla-title">订单({{ obj.order_id }})已被完成
+                            {% if obj.is_read == 2 %}
+                                <span class="layui-badge-dot"></span>
+                            {% endif %}
+                        </h2>
+                        <div class="layui-colla-content">
+                            订单号：{{ obj.order_id }}<br/>
+                            车牌号：{{ obj.card }}<br/>
+                            车位编号：{{ obj.park_id.park_id }}<br/>
+                            订单开始时间：{{ obj.start_time }}<br/>
+                            订单开始时间：{{ obj.end_time }}<br/>
+                            累计金额：{{ obj.price }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+    <ul class="pagination" style="position: relative;left: 325px;margin-bottom: 100px;">
+        {{ page_string }}
+    </ul>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            $('h2').click(function () {
+                $(this).children('span').remove();
+                $.ajax({
+                    url: '/message/edit/',
+                    type: 'get',
+                    data: {
+                        oid: $(this).attr('oid')
+                    },
+                    dataType: 'JSON',
+                    success: function (res) {
+                        $(this).children('span').remove();
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock %}

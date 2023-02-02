@@ -1,0 +1,161 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row" style="margin-bottom: 50px;font-size: 20px;font-weight: bolder;text-align: center;">
+            <div class="panel panel-default col-md-2" id="order_count1"
+                 style="width: 200px;height: 100px;margin-left: 50px;box-shadow: 5px 5px 20px #aaa;"
+                 onclick="location.href='/order/list/'">
+                <div class="panel-heading">未完成/总订单</div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default col-md-2 col-md-offset-1" id="order_count2"
+                 style="width: 200px;height: 100px;box-shadow: 5px 5px 20px #aaa;"
+                 onclick="location.href='/park/list/'">
+                <div class="panel-heading">空闲/总车位</div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default col-md-2 col-md-offset-1" id="price_count1"
+                 style="width: 200px;height: 100px;box-shadow: 5px 5px 20px #aaa;">
+                <div class="panel-heading">今日收入</div>
+                <div class="panel-body">
+                </div>
+            </div>
+            <div class="panel panel-default col-md-2 col-md-offset-1" id="price_count2"
+                 style="width: 200px;height: 100px;box-shadow: 5px 5px 20px #aaa;">
+                <div class="panel-heading">总收入</div>
+                <div class="panel-body">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="main" style="width: 520px;height:400px;"></div>
+            </div>
+            <div class="col-md-6">
+                <div id="main1" style="width: 520px;height:400px;"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            init_order();
+            init_price();
+            get_data();
+        })
+
+
+        function get_data() {
+            $.ajax({
+                url: '/finance/order/count/',
+                type: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        $('#order_count1 > .panel-body').text(res.data.undone_order + '/' + res.data.all_order);
+                        $('#order_count2 > .panel-body').text(res.data.free_park + '/' + res.data.all_park);
+                        $('#price_count1 > .panel-body').text(res.data.today_price.today_price);
+                        $('#price_count2 > .panel-body').text(res.data.all_price.all_price);
+                    }
+                }
+            })
+        }
+
+        function init_price() {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main1'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '过去七日每日收入',
+                    textAlign: 'auto',
+                    left: 'center',
+
+                },
+                tooltip: {},
+                legend: {
+                    data: [],
+                    bottom: 0
+                },
+                xAxis: {
+                    type: 'category',
+                    data: [],
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: []
+            };
+            $.ajax({
+                url: '/finance/price/',
+                type: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        console.log(res.data.x_axis);
+                        console.log(res.data.series_list);
+                        console.log(res.data.legend);
+                        option.legend.data = res.data.legend;
+                        option.series = res.data.series_list;
+                        option.xAxis.data = res.data.x_axis;
+                        // 使用刚指定的配置项和数据显示图表。
+                        myChart.setOption(option);
+                    }
+
+                }
+            })
+
+        }
+
+        function init_order() {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '过去七日每日驶入驶出数量',
+                    textAlign: 'auto',
+                    left: 'center',
+
+                },
+                tooltip: {},
+                legend: {
+                    data: [],
+                    bottom: 0
+                },
+                xAxis: {
+                    data: []
+                },
+                yAxis: {},
+                series: []
+            };
+
+            $.ajax({
+                url: '/finance/order/',
+                type: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        console.log(res.data.x_axis);
+                        console.log(res.data.series_list);
+                        console.log(res.data.legend);
+                        option.legend.data = res.data.legend
+                        option.series = res.data.series_list
+                        option.xAxis.data = res.data.x_axis
+                        // 使用刚指定的配置项和数据显示图表。
+                        myChart.setOption(option);
+                    }
+
+                }
+            })
+        }
+
+    </script>
+{% endblock %}

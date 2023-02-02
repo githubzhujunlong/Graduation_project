@@ -1,0 +1,100 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div style="" class="clearfix">
+            <form action="" method="get">
+                <div class="input-group" style="width: 300px;float: right">
+                    <input type="text" placeholder="按驶入时间筛选" class="layui-input" id="test1" name="start_date"
+                           style="position: relative;">
+                    <input type="text" placeholder="按驶出时间筛选" class="layui-input" id="test2" name="end_date"
+                           style="position: relative;">
+                    <input style="position: relative;" type="text" class="form-control" placeholder="请输入车牌号" name="q"
+                           value="{{ search_data }}">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit" style="position: relative;height: 110px;">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                出入记录
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr class="center1">
+                    <th>ID</th>
+                    <th>车辆照片</th>
+                    <th>订单编号</th>
+                    <th>车牌号</th>
+                    <th>驶入时间</th>
+                    <th>驶出时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if not page_queryset %}
+                    <tr>
+                        <td colspan="10">暂无信息</td>
+                    </tr>
+                {% endif %}
+                {% for obj in page_queryset %}
+                    <tr class="center2" uid="{{ obj.id }}">
+                        <td>{{ obj.id }}</td>
+                        <td><img src="/media/{{ obj.car_image }}" style="height: 80px;width: 120px"></td>
+                        <td oid="{{ obj.order_id }}">{{ obj.order_id }}</td>
+                        <td>{{ obj.card }}</td>
+                        <td>{{ obj.start_time }}</td>
+                        {% if obj.end_time %}
+                            <td>{{ obj.end_time }}</td>
+                        {% else %}
+                            <td>——————</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination">
+            {{ page_string }}
+        </ul>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#test1' //指定元素
+            });
+        });
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({
+                elem: '#test2' //指定元素
+            });
+        });
+        $(function () {
+
+            lineCenter();
+
+        })
+
+        function lineCenter() {
+            $('.center2 td').attr('style', 'line-height: 80px;height: 80px;text-align:center;');
+            $('.center1 th').attr('style', 'text-align:center;');
+        }
+    </script>
+{% endblock %}
